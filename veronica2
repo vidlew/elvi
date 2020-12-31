@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# AUTHOR: Davidescu the Romanian
+#
+# DATE: 2020-12-17
+#
+# DESC: Elvi to search Veronica2
+# elvis: veronica2	-- Search Veronica2 (gopher://floodgap.com/1/v2)
+. surfraw || exit 1
+
+
+w3_config_hook () {
+    def SURFRAW_gopher_text_browser lynx
+    def SURFRAW_gopher_graphical_browser iceweasel
+}
+
+
+w3_usage_hook () {
+    cat <<EOF
+Usage: $w3_argv0 [options] [search words]...
+Description:
+  Search gopherspace with Veronica2 (gopher://floodgap.com/7/v2)
+EOF
+    w3_global_usage
+}
+
+w3_config
+SURFRAW_text_browser=$SURFRAW_gopher_text_browser
+SURFRAW_graphical_browser=$SURFRAW_gopher_graphical_browser
+w3_parse_args "$@"
+if test -z "$w3_args"; then
+    w3_browse_url "gopher://floodgap.com/1/v2"
+else
+    escaped_args=`w3_url_of_arg $w3_args`
+    w3_browse_url "gopher://floodgap.com/7/v2/vs?${escaped_args}"
+fi

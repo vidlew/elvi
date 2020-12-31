@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# AUTHOR: Davidescu the Romanian
+#
+# DATE: 2020-12-17
+#
+# DESC: Elvi to search Gus
+# elvis: gus             -- Search Gus (gemini://gus.guru)
+. surfraw || exit 1
+
+
+w3_config_hook () {
+    def SURFRAW_gemini_graphical_browser kristall
+    def SURFRAW_gemini_text_browser amfora
+}
+
+
+w3_usage_hook () {
+    cat <<EOF
+Usage: $w3_argv0 [options] [search words]...
+Description:
+  Search geminispace with Gus (gemini://gus.guru)
+EOF
+    w3_global_usage
+}
+
+w3_config
+SURFRAW_text_browser=$SURFRAW_gemini_text_browser
+SURFRAW_graphical_browser=$SURFRAW_gemini_graphical_browser
+w3_parse_args "$@"
+if test -z "$w3_args"; then
+    w3_browse_url "gemini://gus.guru"
+else
+    escaped_args=`w3_url_of_arg $w3_args`
+    w3_browse_url "gemini://gus.guru/search?${escaped_args}"
+fi
