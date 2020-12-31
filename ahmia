@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# AUTHOR: Davidescu the Romanian
+#
+# DATE: 2020-12-17
+#
+# DESC: Elvi to search Ahmia
+# elvis: ahmia  --  Search the dark web with Ahmia (https://ahmia.fi)
+. surfraw || exit 1
+
+w3_config
+
+tb=$(echo $SURFRAW_text_browser)
+gb=$(echo $SURFRAW_graphical_browser)
+
+torbt () {
+    torsocks $tb $@
+}
+
+torbg () {
+    torsocks $gb $@
+}
+
+w3_config_hook () {
+    def SURFRAW_tor_text_browser torbt
+    def SURFRAW_tor_graphical_browser torbg
+    defyn SURFRAW_tor_use_onion no
+}
+
+
+w3_usage_hook () {
+    cat <<EOF
+Usage: $w3_argv0 [options] [search words]...
+Description:
+  Search the dark web with Ahmia (https://ahmia.fi)
+Local options:
+  -onion=[yes|no}               Use Ahmia's onion service.
+                                Environment: SURFRAW_tor_use_onion
+                                Default: $SURFRAW_tor_use_onion
+EOF
+    w3_global_usage
+}
+
+
+w3_parse_option_hook () {
+    opt="$1"
+    optarg="$2"
+    case "$opt" in
+    -on*=*)     setoptyn  SURFRAW_tor_use_onion       "$optarg" ;;
+    *) return 1 ;;
+    esac
+    return 0
+}
+
+w3_config
+SURFRAW_text_browser=$SURFRAW_tor_text_browser
+SURFRAW_graphical_browser=$SURFRAW_tor_graphical_browser
+
+w3_parse_args "$@"
+ifyes SURFRAW_tor_use_onion && url="http://msydqstlz2kzerdg.onion" || url="http://ahmia.fi"
+if test -z "$w3_args"; then
+    w3_browse_url "$url"
+else
+    escaped_args=`w3_url_of_arg $w3_args`
+    w3_browse_url "${url}/search/?q=${escaped_args}"
+fi
